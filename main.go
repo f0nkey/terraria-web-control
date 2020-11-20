@@ -40,8 +40,7 @@ func main() {
 	}
 
 	fmt.Println("running")
-	fmt.Sprintf()
-	cmdName := "./server/TerrariaServer.bin.x86_64 -world ./World.wld -port " + config.TerrariaServerPort
+	cmdName := fmt.Sprintf("%s -world %s -port %s", config.TerrariaBinaryPath, config.TerrariaWorldPath, config.TerrariaServerPort)
 	cmdArgs := strings.Fields(cmdName)
 	cmd := exec.Command(cmdArgs[0], cmdArgs[1:len(cmdArgs)]...)
 	gin.SetMode(gin.ReleaseMode)
@@ -54,7 +53,7 @@ func main() {
 
 	discordSession, err = discordgo.New("Bot " + config.BotToken)
 	if err != nil {
-		log.Fatal("Failed getting bot session", err)
+		log.Fatal("failed getting bot session", err)
 	}
 	go startWebServer(tty)
 
