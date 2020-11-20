@@ -1,0 +1,6 @@
+### Send POST request with json body
+POST http://localhost:7778/cmd
+
+say yolo
+
+###

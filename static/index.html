@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>DD Terraria Panel</title>
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
+</head>
+
+<body>
+    <div>
+        <h1>Dino Doggos Terraria</h1>
+        <h2>CONTROL PANEL</h2>
+        <hr>
+        <h3>Time</h3>
+        <div>
+            <button id="dusk">Dusk</button>
+            <button id="dawn">Dawn</button>
+            <button id="noon">Noon</button>
+            <button id="midnight">Midnight</button>
+        </div>
+        <div>
+            <p id="command-status"></p>
+        </div>
+
+    </div>
+</body>
+
+<script>
+    function submitCommand(cmd) {
+        let url = window.location.href + "cmd"
+        fetch(url, {method: "POST", body:cmd})
+            .then(response => response.json())
+            .then((data) => {
+                if(data.msg === "error") {
+                    setCmdStatus("Encountered error: " + data.error)
+                    return
+                }
+                setCmdStatus("Processed command successfully.")
+            }).catch((e) => {
+            setCmdStatus("Encountered error: " + e)
+        });
+    }
+
+    function setCmdStatus(text) {
+        let el = document.getElementById("command-status")
+        el.innerText = text
+        el.classList.remove("anim")
+        void el.offsetWidth
+        el.classList.add("anim")
+    }
+
+    document.getElementById("dusk").addEventListener("click", ()=> {
+        submitCommand("dusk")
+    })
+    document.getElementById("dawn").addEventListener("click", ()=> {
+        submitCommand("dawn")
+    })
+    document.getElementById("noon").addEventListener("click", ()=> {
+        submitCommand("noon")
+    })
+    document.getElementById("midnight").addEventListener("click", ()=> {
+        submitCommand("midnight")
+    })
+</script>
+
+<style>
+    div {
+        margin: 0 auto;
+        width: 90%;
+        text-align: center;
+    }
+    h1, h2, h3 {
+        text-align: center;
+        font-family: 'Montserrat', sans-serif;
+        margin: 0.2em;
+    }
+    @keyframes fade {
+        from {opacity: 0%}
+        to {opacity:100%}
+    }
+    .anim {
+        animation: fade 1s 1;
+    }
+    p {
+        font-family: 'Montserrat', sans-serif;
+    }
+    h2 {
+        letter-spacing: 0.8em;
+        font-variant: all-small-caps;
+    }
+    button {
+        cursor:pointer;
+        background-color: darkgoldenrod;
+        border: none;
+        color: white;
+        padding: 15px 32px;
+        text-align: center;
+        text-decoration: none;
+        display: inline-block;
+        font-size: 16px;
+    }
+    button:hover {
+        background-color: goldenrod;
+    }
+    button:focus {
+        outline: none;
+    }
+</style>
+
+</html>

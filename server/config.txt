@@ -1,0 +1,9 @@
+autocreate=1
+seed=neat
+difficult=0
+maxplayers=8
+port=7777
+password=none
+worldpath=./
+worldname=World
+world=./World.wld
