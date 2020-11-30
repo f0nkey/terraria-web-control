@@ -86,7 +86,7 @@ func startConsoleRelaying(tty io.Reader) {
 	relayConsoleText(scanner)
 }
 
-func relayConsoleText(scanner *bufio.Scanner ) {
+func relayConsoleText(scanner *bufio.Scanner) {
 	lastIP := "NA"
 	for scanner.Scan() { // Exits when hard resetting
 		text := scanner.Text()
@@ -171,7 +171,9 @@ func hardReset(config Config, cmd *exec.Cmd) error {
 
 func notifyServerChannel(msg string) {
 	_, err := discordSession.ChannelMessageSend(config.ChannelID, msg)
-	log.Println("err sending message to discord server", err)
+	if err != nil {
+		log.Println("err sending message to discord server", err)
+	}
 }
 
 func startWebServer(tty *os.File, cmd *exec.Cmd, config Config) {
