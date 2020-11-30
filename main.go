@@ -10,14 +10,21 @@ import (
 	"io"
 	"io/ioutil"
 	"log"
+	"math"
 	"net/http"
 	"os/exec"
 	"strings"
+	"time"
 )
 
-var ipPersons = make(map[string]string) // ip, person
+var ipPersons = make(map[string]Person) // ip, Person
 var discordSession *discordgo.Session
 var config Config
+
+type Person struct {
+	Name string `json:"name"`
+	JoinTime time.Time `json:"joinTime"`
+}
 
 type Config struct {
 	ChannelID string `yaml:"channelID"`
@@ -67,17 +74,49 @@ func main() {
 			lastIP = strings.Split(lastIP, ":")[0]
 		}
 		if strings.Contains(text, " has joined.") {
-			person := text[:strings.Index(text, " has joined.")]
-			notifyServerChannel(person + " has joined!")
-			ipPersons[lastIP] = person
+			personName := text[:strings.Index(text, " has joined.")]
+			notifyServerChannel(personName + " has joined!")
+			ipPersons[lastIP] = Person{
+				Name:     personName,
+				JoinTime: time.Now(),
+			}
 		}
 		if strings.Contains(text, " has left.") {
-			person := text[:strings.Index(text, " has left.")]
-			notifyServerChannel(person + " has left.")
-			ipPersons[lastIP] = person
+
+			personName := text[:strings.Index(text, " has left.")]
+			person := Person{}
+			for key, p := range ipPersons {
+				if p.Name == personName {
+					person = p
+					delete(ipPersons, key)
+				}
+			}
+			notifyServerChannel(personName + " has left. They played for " +  humanizedDuration(time.Since(person.JoinTime)))
 		}
 		log.Println(text)
 	}
+}
+
+func humanizedDuration(duration time.Duration) string {
+	if duration.Seconds() < 60.0 {
+		return fmt.Sprintf("%d seconds", int64(duration.Seconds()))
+	}
+	if duration.Minutes() < 60.0 {
+		remainingSeconds := math.Mod(duration.Seconds(), 60)
+		return fmt.Sprintf("%d minutes %d seconds", int64(duration.Minutes()), int64(remainingSeconds))
+	}
+	if duration.Hours() < 24.0 {
+		remainingMinutes := math.Mod(duration.Minutes(), 60)
+		remainingSeconds := math.Mod(duration.Seconds(), 60)
+		return fmt.Sprintf("%d hours %d minutes %d seconds",
+			int64(duration.Hours()), int64(remainingMinutes), int64(remainingSeconds))
+	}
+	remainingHours := math.Mod(duration.Hours(), 24)
+	remainingMinutes := math.Mod(duration.Minutes(), 60)
+	remainingSeconds := math.Mod(duration.Seconds(), 60)
+	return fmt.Sprintf("%d hours %d minutes %d seconds",
+		int64(remainingHours),
+		int64(remainingMinutes), int64(remainingSeconds))
 }
 
 func handlerCmd(c *gin.Context, stdin io.WriteCloser) {
@@ -102,9 +141,9 @@ func handlerCmd(c *gin.Context, stdin io.WriteCloser) {
 
 	ip := strings.Split(c.ClientIP(), ":")[0]
 	if p, exists := ipPersons[ip]; exists {
-		notifyServerChannel(p + " issued command: " + bStr)
+		notifyServerChannel(p.Name + " issued command: " + bStr)
 	} else {
-		notifyServerChannel("Someone issued command: " + bStr)
+		notifyServerChannel("Someone not playing in the server issued command: " + bStr)
 	}
 	c.JSON(200, gin.H{"msg": "passed"})
 }
