@@ -1,34 +1,46 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>DD Terraria Panel</title>
-    <link rel="preconnect" href="https://fonts.gstatic.com">
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
-</head>
+  <head>
+    <meta charset="utf-8"/>
+    <title>Dino Doggos - Terraria Control Panel</title>
+    <link rel="stylesheet" type="text/css" href="style.css"/>
+    <link href="https://fonts.googleapis.com/css?family=Lato:400,700&display=swap" rel="stylesheet">
 
-<body>
-    <div>
-        <h1>Dino Doggos Terraria</h1>
-        <h2>CONTROL PANEL</h2>
-        <hr>
-        <img id="tree" src="https://i.imgur.com/24AmOVT.gif" alt="tree" />
-        <h3>Time</h3>
-        <div>
-            <button id="dusk">Dusk</button>
-            <button id="dawn">Dawn</button>
-            <button id="noon">Noon</button>
-            <button id="midnight">Midnight</button>
-        </div>
-        <div>
-            <p id="command-status"></p>
-        </div>
-
+  <body>
+    <div class="main">
+      <div class="logo"></div>
+      <div class="title">Dino Doggos</div>
+      <div class="subtitle">Terraria Control Panel</div>
+      <div class="buttons">
+        <div><button id="dawn" onclick="setDawn()">Dawn</button></div>
+        <div><button id="noon" onclick="setNoon()">Noon</button></div>
+        <div><button id="dusk" onclick="setDusk()">Dusk</button></div>
+        <div><button id="midnight" onclick="setMidnight()">Midnight</button></div>
+        <div><button id="save" onclick="saveServer()">Save</button></div>
+        <div><button id="reset" onclick="resetServer()">Reset</button></div>
+      </div>
     </div>
-</body>
 
-<script>
-    function submitCommand(cmd) {
+    <script>
+      function resetServer() {
+        confirm("This will RESET the server and changes WILL NOT BE SAVED. Are you sure you want to continue?")
+      }
+      function saveServer() {
+        confirm("This will SAVE the server in its current state. Are you sure you want to continue?")
+      }
+      function setDawn() {
+        confirm("This will change the current time of day to DAWN. Are you sure you want to continue?")
+      }
+      function setNoon() {
+        confirm("This will change the current time of day to NOON. Are you sure you want to continue?")
+      }
+      function setDusk() {
+        confirm("This will change the current time of day to DUSK. Are you sure you want to continue?")
+      }
+      function setMidnight() {
+        confirm("This will change the current time of day to MIDNIGHT. Are you sure you want to continue?")
+      }
+      function submitCommand(cmd) {
         let url = window.location.href + "cmd"
         fetch(url, {method: "POST", body:cmd})
             .then(response => response.json())
@@ -63,53 +75,6 @@
     document.getElementById("midnight").addEventListener("click", ()=> {
         submitCommand("midnight")
     })
-</script>
-
-<style>
-    div {
-        margin: 0 auto;
-        width: 90%;
-        text-align: center;
-    }
-    h1, h2, h3 {
-        text-align: center;
-        font-family: 'Montserrat', sans-serif;
-        margin: 0.2em;
-    }
-    @keyframes fade {
-        from {opacity: 0%}
-        to {opacity:100%}
-    }
-    .anim {
-        animation: fade 1s 1;
-    }
-    p {
-        font-family: 'Montserrat', sans-serif;
-    }
-    h2 {
-        letter-spacing: 0.8em;
-        font-variant: all-small-caps;
-    }
-    button {
-        cursor:pointer;
-        background-color: darkgoldenrod;
-        border: none;
-        color: white;
-        padding: 15px 32px;
-        text-align: center;
-        text-decoration: none;
-        display: inline-block;
-        font-size: 16px;
-    }
-    button:hover {
-        background-color: goldenrod;
-    }
-    button:focus {
-        outline: none;
-    }
-    #tree {
-      padding: 20px 0px 0px 0px;
-    }
-</style>
-
+    </script>
+  </body>
 </html>
