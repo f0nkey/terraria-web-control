@@ -19,6 +19,8 @@
             <button id="dawn">Dawn</button>
             <button id="noon">Noon</button>
             <button id="midnight">Midnight</button>
+            <button id="save-world">Save World</button>
+            <button id="hard-reset">Hard Reset</button>
         </div>
         <div>
             <p id="command-status"></p>
@@ -63,6 +65,13 @@
     document.getElementById("midnight").addEventListener("click", ()=> {
         submitCommand("midnight")
     })
+    document.getElementById("hard-reset").addEventListener("click", ()=> {
+        setCmdStatus("Issuing hard reset ...")
+        submitCommand("hardReset")
+    })
+    document.getElementById("save-world").addEventListener("click", ()=> {
+        submitCommand("save")
+    })
 </script>
 
 <style>
@@ -77,7 +86,7 @@
         margin: 0.2em;
     }
     @keyframes fade {
-        from {opacity: 0%}
+        from {opacity: 0}
         to {opacity:100%}
     }
     .anim {
@@ -108,7 +117,7 @@
         outline: none;
     }
     #tree {
-      padding: 20px 0px 0px 0px;
+      padding: 20px 0 0 0;
     }
 </style>
 

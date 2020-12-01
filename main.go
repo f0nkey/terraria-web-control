@@ -108,7 +108,7 @@ func relayConsoleText(scanner *bufio.Scanner) {
 func handlerCmd(c *gin.Context, terrariaPty *TerrariaPty) {
 	body, _ := ioutil.ReadAll(c.Request.Body)
 	bStr := string(body)
-	if bStr != "dusk" && bStr != "dawn" && bStr != "noon" && bStr != "midnight" && bStr != "hardReset" {
+	if bStr != "dusk" && bStr != "dawn" && bStr != "noon" && bStr != "midnight" && bStr != "hardReset" && bStr != "save" {
 		c.JSON(400, gin.H{"msg": "error", "error": "command not allowed"})
 		return
 	}
