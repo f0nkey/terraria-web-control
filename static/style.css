@@ -50,7 +50,7 @@ body {
   width: 100%;
   padding: 30px 5px 5px 5px;
 }
-#dawn {
+.button {
   margin-bottom: 10px;
   outline: none;
   border: none;
@@ -68,70 +68,7 @@ body {
               -3px -3px 8px #ffffff;
   transition: 0.5s;
 }
-#dawn:hover {
-  background: darkgoldenrod;
-}
-#noon {
-  margin-bottom: 10px;
-  outline: none;
-  border: none;
-  cursor: pointer;
-  width: 100%;
-  height: 60px;
-  border-radius: 30px;
-  font-size: 20px;
-  font-weight: 700;
-  font-family: 'Lato', sans-serif;
-  color: white;
-  text-align: center;
-  background: goldenrod;
-  box-shadow: 3px 3px 8px #b1b1b1,
-              -3px -3px 8px #ffffff;
-  transition: 0.5s;
-}
-#noon:hover {
-  background: darkgoldenrod;
-}
-#dusk {
-  margin-bottom: 10px;
-  outline: none;
-  border: none;
-  cursor: pointer;
-  width: 100%;
-  height: 60px;
-  border-radius: 30px;
-  font-size: 20px;
-  font-weight: 700;
-  font-family: 'Lato', sans-serif;
-  color: white;
-  text-align: center;
-  background: goldenrod;
-  box-shadow: 3px 3px 8px #b1b1b1,
-              -3px -3px 8px #ffffff;
-  transition: 0.5s;
-}
-#dusk:hover {
-  background: darkgoldenrod;
-}
-#midnight {
-  margin-bottom: 10px;
-  outline: none;
-  border: none;
-  cursor: pointer;
-  width: 100%;
-  height: 60px;
-  border-radius: 30px;
-  font-size: 20px;
-  font-weight: 700;
-  font-family: 'Lato', sans-serif;
-  color: white;
-  text-align: center;
-  background: goldenrod;
-  box-shadow: 3px 3px 8px #b1b1b1,
-              -3px -3px 8px #ffffff;
-  transition: 0.5s;
-}
-#midnight:hover {
+.button:hover {
   background: darkgoldenrod;
 }
 #reset {
