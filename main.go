@@ -2,10 +2,8 @@ package main
 
 import (
 	"bufio"
-	"errors"
 	"fmt"
 	"github.com/bwmarrin/discordgo"
-	"github.com/creack/pty"
 	"github.com/gin-gonic/gin"
 	"gopkg.in/yaml.v3"
 	"io"
@@ -13,16 +11,13 @@ import (
 	"log"
 	"math"
 	"net/http"
-	"os"
-	"os/exec"
 	"strings"
-	"syscall"
 	"time"
 )
 
 var ipPersons = make(map[string]Person) // ip, Person
 var discordSession *discordgo.Session
-var config Config
+var discordChannelID string
 
 type Person struct {
 	Name     string    `json:"name"`
@@ -44,17 +39,22 @@ func main() {
 		log.Fatal(err)
 	}
 
+	config := Config{}
 	err = yaml.Unmarshal(b, &config)
 	if err != nil {
 		log.Fatal(err)
 	}
+	discordChannelID = config.ChannelID
 
-	// todo: combine tty, cmd, and config in one struct to pass down to hardReset
-	tty, cmd, err := startPty(config)
+	terrariaPty, err := NewTerrariaPty(TerrariaPtyArgs{
+		TerrariaServerPort: config.TerrariaServerPort,
+		TerrariaBinaryPath: config.TerrariaBinaryPath,
+		TerrariaWorldPath:  config.TerrariaWorldPath,
+	})
 	if err != nil {
-		log.Fatal("failed starting pty", err)
+		log.Fatal("failed starting terraria pty", err)
 	}
-	go startConsoleRelaying(tty)
+	go startDiscordConsoleRelay(terrariaPty.tty)
 
 	discordSession, err = discordgo.New("Bot " + config.BotToken)
 	if err != nil {
@@ -62,33 +62,21 @@ func main() {
 	}
 
 	gin.SetMode(gin.ReleaseMode)
-	go startWebServer(tty, cmd, config)
+	go startWebServer(config.WebServerPort, terrariaPty)
 
 	fmt.Println("Running")
 	shouldExit := make(chan bool)
 	<-shouldExit
 }
 
-func startPty(config Config) (*os.File, *exec.Cmd, error) {
-	cmdName := fmt.Sprintf("%s -world %s -port %s", config.TerrariaBinaryPath, config.TerrariaWorldPath, config.TerrariaServerPort)
-	cmdArgs := strings.Fields(cmdName)
-	cmd := exec.Command(cmdArgs[0], cmdArgs[1:len(cmdArgs)]...)
-	tty, err := pty.Start(cmd)
-	if err != nil {
-		log.Println("err!!", err)
-		return nil, nil, nil
-	}
-	return tty, cmd, nil
-}
-
-func startConsoleRelaying(tty io.Reader) {
+func startDiscordConsoleRelay(tty io.Reader) {
 	scanner := bufio.NewScanner(tty)
 	relayConsoleText(scanner)
 }
 
 func relayConsoleText(scanner *bufio.Scanner) {
 	lastIP := "NA"
-	for scanner.Scan() { // Exits when hard resetting
+	for scanner.Scan() { // breaks when hard resetting
 		text := scanner.Text()
 		if strings.Contains(text, "is connecting") {
 			lastIP = text[:strings.Index(text, " is connecting")]
@@ -117,7 +105,7 @@ func relayConsoleText(scanner *bufio.Scanner) {
 	}
 }
 
-func handlerCmd(c *gin.Context, tty *os.File, cmd *exec.Cmd, config Config) {
+func handlerCmd(c *gin.Context, terrariaPty *TerrariaPty) {
 	body, _ := ioutil.ReadAll(c.Request.Body)
 	bStr := string(body)
 	if bStr != "dusk" && bStr != "dawn" && bStr != "noon" && bStr != "midnight" && bStr != "hardReset" {
@@ -126,7 +114,7 @@ func handlerCmd(c *gin.Context, tty *os.File, cmd *exec.Cmd, config Config) {
 	}
 
 	if bStr == "hardReset" {
-		err := hardReset(config, cmd)
+		err := terrariaPty.HardReboot()
 		if err != nil {
 			c.JSON(400, gin.H{"msg": "error", "error": err.Error()})
 			return
@@ -135,7 +123,7 @@ func handlerCmd(c *gin.Context, tty *os.File, cmd *exec.Cmd, config Config) {
 		return
 	}
 
-	_, err := io.WriteString(tty, string(body)+"\n")
+	err := terrariaPty.WriteConsole(string(body))
 	if err != nil {
 		c.JSON(400, gin.H{"msg": "error", "error": err.Error()})
 		return
@@ -150,39 +138,20 @@ func handlerCmd(c *gin.Context, tty *os.File, cmd *exec.Cmd, config Config) {
 	c.JSON(200, gin.H{"msg": "passed"})
 }
 
-func hardReset(config Config, cmd *exec.Cmd) error {
-	err := cmd.Process.Signal(syscall.SIGINT)
-	if err != nil {
-		return err
-	}
-	pState, err := cmd.Process.Wait()
-	if err != nil {
-		return errors.New(err.Error() + " " + pState.String())
-	}
-
-	tty, newCmd, err := startPty(config)
-	if err != nil {
-		return err
-	}
-	*cmd = *newCmd
-	go startConsoleRelaying(tty)
-	return nil
-}
-
 func notifyServerChannel(msg string) {
-	_, err := discordSession.ChannelMessageSend(config.ChannelID, msg)
+	_, err := discordSession.ChannelMessageSend(discordChannelID, msg)
 	if err != nil {
 		log.Println("err sending message to discord server", err)
 	}
 }
 
-func startWebServer(tty *os.File, cmd *exec.Cmd, config Config) {
+func startWebServer(webServerPort string, terrariaPty *TerrariaPty) {
 	r := gin.Default()
 	r.POST("/cmd", func(c *gin.Context) {
-		handlerCmd(c, tty, cmd, config)
+		handlerCmd(c, terrariaPty)
 	})
 	r.StaticFS("/", http.Dir("./static"))
-	r.Run(":" + config.WebServerPort)
+	r.Run(":" + webServerPort)
 }
 
 func humanizedDuration(duration time.Duration) string {
