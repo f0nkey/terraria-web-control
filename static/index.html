@@ -13,34 +13,16 @@
       <div class="title">Dino Doggos</div>
       <div class="subtitle">Terraria Control Panel</div>
       <div class="buttons">
-        <div><button class="button" id="dawn" onclick="setDawn()">Dawn</button></div>
-        <div><button class="button" id="noon" onclick="setNoon()">Noon</button></div>
-        <div><button class="button" id="dusk" onclick="setDusk()">Dusk</button></div>
-        <div><button class="button" id="midnight" onclick="setMidnight()">Midnight</button></div>
-        <div><button class="save" id="save" onclick="saveServer()">Save</button></div>
-        <div><button class="reset" id="reset" onclick="resetServer()">Reset</button></div>
+        <div><button id="dawn">Dawn</button></div>
+        <div><button id="noon">Noon</button></div>
+        <div><button id="dusk">Dusk</button></div>
+        <div><button id="midnight">Midnight</button></div>
+        <div><button id="save-world">Save</button></div>
+        <div><button id="hard-reset">Hard Reset</button></div>
       </div>
     </div>
 
     <script>
-      function resetServer() {
-        confirm("This will RESET the server and changes WILL NOT BE SAVED. Are you sure you want to continue?")
-      }
-      function saveServer() {
-        confirm("This will SAVE the server in its current state. Are you sure you want to continue?")
-      }
-      function setDawn() {
-        confirm("This will change the current time of day to DAWN. Are you sure you want to continue?")
-      }
-      function setNoon() {
-        confirm("This will change the current time of day to NOON. Are you sure you want to continue?")
-      }
-      function setDusk() {
-        confirm("This will change the current time of day to DUSK. Are you sure you want to continue?")
-      }
-      function setMidnight() {
-        confirm("This will change the current time of day to MIDNIGHT. Are you sure you want to continue?")
-      }
       function submitCommand(cmd) {
         let url = window.location.href + "cmd"
         fetch(url, {method: "POST", body:cmd})
@@ -75,6 +57,16 @@
     })
     document.getElementById("midnight").addEventListener("click", ()=> {
         submitCommand("midnight")
+    })
+    document.getElementById("hard-reset").addEventListener("click", ()=> {
+      if(confirm("This will reboot the server WITHOUT SAVING. Are you sure?"))
+      {
+        setCmdStatus("Issuing hard reset ...")
+        submitCommand("hardReset")
+      }
+    })
+    document.getElementById("save-world").addEventListener("click", ()=> {
+      submitCommand("save")
     })
     </script>
   </body>

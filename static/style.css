@@ -71,15 +71,15 @@ button {
 button:hover {
   background: darkgoldenrod;
 }
-#reset {
+#hard-reset {
   background: #b62000;
 }
-#reset:hover {
+#hard-reset:hover {
   background: darkred;
 }
-#save {
+#save-world {
   background: green;
 }
-#save:hover {
+#save-world:hover {
   background: darkgreen;
 }
