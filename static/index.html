@@ -13,14 +13,18 @@
       <div class="title">Dino Doggos</div>
       <div class="subtitle">Terraria Control Panel</div>
       <div class="buttons">
-        <div><button id="dawn">Dawn</button></div>
-        <div><button id="noon">Noon</button></div>
-        <div><button id="dusk">Dusk</button></div>
-        <div><button id="midnight">Midnight</button></div>
-        <div><button id="save-world">Save</button></div>
-        <div><button id="hard-reset">Hard Reset</button></div>
+        <button id="dawn">Dawn</button>
+        <button id="noon">Noon</button>
+        <button id="dusk">Dusk</button>
+        <button id="midnight">Midnight</button>
+        <button id="save-world">Save</button>
+        <button id="hard-reset">Hard Reset</button>
+      </div>
+      <div>
+        <p id="command-status"></p>
       </div>
     </div>
+  </body>
 
     <script>
       function submitCommand(cmd) {
@@ -69,5 +73,5 @@
       submitCommand("save")
     })
     </script>
-  </body>
+    
 </html>
