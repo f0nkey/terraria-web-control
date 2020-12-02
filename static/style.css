@@ -84,3 +84,14 @@ button:hover {
 #save-world:hover {
   background: darkgreen;
 }
+#command-status {
+  margin: 0 auto;
+  text-align: center;
+}
+@keyframes fade {
+    from {opacity: 0}
+    to {opacity: 100%}
+  }
+  .anim {
+    animation: fade 1s 1;
+  }
