@@ -1,36 +1,31 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>DD Terraria Panel</title>
-    <link rel="preconnect" href="https://fonts.gstatic.com">
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
-</head>
+  <head>
+    <meta charset="utf-8"/>
+    <title>Dino Doggos - Terraria Control Panel</title>
+    <link rel="stylesheet" type="text/css" href="style.css"/>
+    <link href="https://fonts.googleapis.com/css?family=Lato:400,700&display=swap" rel="stylesheet">
+  </head>
 
-<body>
-    <div>
-        <h1>Dino Doggos Terraria</h1>
-        <h2>CONTROL PANEL</h2>
-        <hr>
-        <img id="tree" src="https://i.imgur.com/24AmOVT.gif" alt="tree" />
-        <h3>Time</h3>
-        <div>
-            <button id="dusk">Dusk</button>
-            <button id="dawn">Dawn</button>
-            <button id="noon">Noon</button>
-            <button id="midnight">Midnight</button>
-            <button id="save-world">Save World</button>
-            <button id="hard-reset">Hard Reset</button>
-        </div>
-        <div>
-            <p id="command-status"></p>
-        </div>
-
+  <body>
+    <div class="main">
+      <div class="logo"></div>
+      <div class="title">Dino Doggos</div>
+      <div class="subtitle">Terraria Control Panel</div>
+      <div class="buttons">
+        <button id="dawn"><span>Dawn</span></button>
+        <button id="noon"><span>Noon</span></button>
+        <button id="dusk"><span>Dusk</span></button>
+        <button id="midnight"><span>Midnight</span></button>
+        <button id="save-world"><span>Save</span></button>
+        <button id="hard-reset"><span>Hard Reset</span></button>
+      </div>
+      <div><p id="command-status"></p></div>
     </div>
-</body>
+  </body>
 
-<script>
-    function submitCommand(cmd) {
+    <script>
+      function submitCommand(cmd) {
         let url = window.location.href + "cmd"
         fetch(url, {method: "POST", body:cmd})
             .then(response => response.json())
@@ -66,59 +61,15 @@
         submitCommand("midnight")
     })
     document.getElementById("hard-reset").addEventListener("click", ()=> {
+      if(confirm("This will reboot the server WITHOUT SAVING. Are you sure?"))
+      {
         setCmdStatus("Issuing hard reset ...")
         submitCommand("hardReset")
+      }
     })
     document.getElementById("save-world").addEventListener("click", ()=> {
-        submitCommand("save")
+      submitCommand("save")
     })
-</script>
-
-<style>
-    div {
-        margin: 0 auto;
-        width: 90%;
-        text-align: center;
-    }
-    h1, h2, h3 {
-        text-align: center;
-        font-family: 'Montserrat', sans-serif;
-        margin: 0.2em;
-    }
-    @keyframes fade {
-        from {opacity: 0}
-        to {opacity:100%}
-    }
-    .anim {
-        animation: fade 1s 1;
-    }
-    p {
-        font-family: 'Montserrat', sans-serif;
-    }
-    h2 {
-        letter-spacing: 0.8em;
-        font-variant: all-small-caps;
-    }
-    button {
-        cursor:pointer;
-        background-color: darkgoldenrod;
-        border: none;
-        color: white;
-        padding: 15px 32px;
-        text-align: center;
-        text-decoration: none;
-        display: inline-block;
-        font-size: 16px;
-    }
-    button:hover {
-        background-color: goldenrod;
-    }
-    button:focus {
-        outline: none;
-    }
-    #tree {
-      padding: 20px 0 0 0;
-    }
-</style>
+    </script>
 
 </html>
