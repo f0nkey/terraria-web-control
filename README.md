@@ -16,4 +16,3 @@ Provides some additional Discord bot integration.
 - Display current players in discord channel topic
 - Password protection
 - Config auto-generation
-- Prettify UI
