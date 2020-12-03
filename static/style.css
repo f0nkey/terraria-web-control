@@ -1,8 +1,9 @@
 * {
   box-sizing: border-box;
 }
+
 body {
-  margin:0;
+  margin: 0;
   height: 100vh;
   width: 100vw;
   overflow: hidden;
@@ -14,14 +15,15 @@ body {
   color: #555;
   background: #ecf0f3;
 }
+
 .main {
-  width:430px;
+  width: 430px;
   padding: 40px 35px 35px 35px;
   border-radius: 40px;
   background: #ecf0f3;
-  box-shadow: 13px 13px 20px #cbced1,
-              -13px -13px 20px #ffffff;
+  box-shadow: 13px 13px 20px #cbced1, -13px -13px 20px #ffffff;
 }
+
 .logo {
   background: url('https://i.imgur.com/lzu39c8.png');
   background-repeat: no-repeat;
@@ -29,26 +31,28 @@ body {
   height: 100px;
   border-radius: 50%;
   margin: 0 auto;
-  box-shadow: 5px 5px 15px #cbced1,
-              5px 5px 15px #cbced1,
-              -13px -13px 20px #ffffff
+  box-shadow: 5px 5px 15px #cbced1, 5px 5px 15px #cbced1, -13px -13px 20px #ffffff
 }
+
 .title {
   text-align: center;
   font-size: 28px;
   padding-top: 20px;
   letter-spacing: 0.5px;
 }
+
 .subtitle {
   text-align: center;
   font-size: 15px;
   padding-top: 7px;
   letter-spacing: 3px;
 }
+
 .buttons {
   width: 100%;
   padding: 30px 5px 5px 5px;
 }
+
 button {
   margin-bottom: 10px;
   outline: none;
@@ -60,37 +64,66 @@ button {
   font-size: 20px;
   font-weight: 700;
   font-family: 'Lato', sans-serif;
-  color: white;
+  color: goldenrod;
   text-align: center;
-  background: goldenrod;
-  box-shadow: 3px 3px 8px #b1b1b1,
-              -3px -3px 8px #ffffff;
+  background: #ecf0f3;
+  box-shadow: 3px 3px 8px #b1b1b1, -3px -3px 8px #ffffff;
   transition: 0.5s;
   display: block;
 }
-button:hover {
-  background: darkgoldenrod;
+
+button span {
+  background-color: darkgoldenrod;
+  color: transparent;
+  text-shadow: 0 2px 3px rgba(255,255,255,0.5);
+  -webkit-background-clip: text;
+  -moz-background-clip: text;
+  background-clip: text;
 }
-#hard-reset {
-  background: #b62000;
+
+button:hover span {
+  color: goldenrod;
+  text-shadow: none;
+  filter: drop-shadow(0px 0px 20px goldenrod) drop-shadow(0px 0px 5px goldenrod);
+  transition: all 200ms;
 }
-#hard-reset:hover {
-  background: darkred;
+
+#hard-reset span{
+  background-color: darkred;
 }
-#save-world {
-  background: green;
+
+#hard-reset:hover span{
+  color: darkred;
+  text-shadow: none;
+  filter: drop-shadow(0px 0px 20px darkred) drop-shadow(0px 0px 5px darkred);
+  transition: all 200ms;
 }
-#save-world:hover {
-  background: darkgreen;
+
+#save-world span {
+  background-color: darkgreen;
 }
+
+#save-world:hover span{
+  color: darkgreen;
+  text-shadow: none;
+  filter: drop-shadow(0px 0px 20px darkgreen) drop-shadow(0px 0px 5px darkgreen);
+  transition: all 200ms;
+}
+
 #command-status {
   margin: 0 auto;
   text-align: center;
 }
+
 @keyframes fade {
-    from {opacity: 0}
-    to {opacity: 100%}
+  from {
+    opacity: 0
   }
-  .anim {
-    animation: fade 1s 1;
+  to {
+    opacity: 100%
   }
+}
+
+.anim {
+  animation: fade 1s 1;
+}
