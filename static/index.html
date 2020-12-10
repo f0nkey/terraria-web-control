@@ -5,6 +5,7 @@
     <title>Dino Doggos - Terraria Control Panel</title>
     <link rel="stylesheet" type="text/css" href="style.css"/>
     <link href="https://fonts.googleapis.com/css?family=Lato:400,700&display=swap" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
   </head>
 
   <body>
@@ -19,8 +20,20 @@
         <button id="midnight"><span>Midnight</span></button>
         <button id="save-world"><span>Save</span></button>
         <button id="hard-reset"><span>Hard Reset</span></button>
+        <button id="consoleButton"><span>Console</span></button>
       </div>
       <div><p id="command-status"></p></div>
+      <div id="consoleModal" class="modal">
+        <div class="modal-content">
+          <span class="close">&times;</span>
+          <p class="consoleTitle">Console</p>
+          <div class="fields">
+            <div id="console"></div>
+            <input id="commandLine" type="text" placeholder="Type command(s) here" />
+            <button id="submit" onclick="displayInput()">Submit</button>
+          </div>
+        </div>
+      </div>
     </div>
   </body>
 
@@ -70,6 +83,30 @@
     document.getElementById("save-world").addEventListener("click", ()=> {
       submitCommand("save")
     })
+
+    var modal = document.getElementById("consoleModal");
+    var btn = document.getElementById("consoleButton");
+    var span = document.getElementsByClassName("close")[0];
+
+    btn.onclick = function() {
+      modal.style.display = "block";
+    }
+
+    span.onclick = function() {
+      modal.style.display = "none";
+    }
+
+    window.onclick = function(event) {
+      if (event.target == modal) {
+        modal.style.display = "none";
+      }
+    }
+
+    function displayInput() {
+      var inputText = document.getElementById("commandLine").value;
+      document.getElementById("console").innerHTML += (inputText + "</br>");
+    }
+
     </script>
 
 </html>
