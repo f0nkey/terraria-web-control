@@ -1,0 +1,6 @@
+mkdir ./server
+wget -O ./server/serverArchive.zip https://terraria.org/system/dedicated_servers/archives/000/000/042/original/terraria-server-1412.zip
+cd ./server/ || exit
+unzip serverArchive.zip
+cp -r ./1412/Linux/. ./
+rm serverArchive.zip
