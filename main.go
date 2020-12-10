@@ -5,12 +5,14 @@ import (
 	"fmt"
 	"github.com/bwmarrin/discordgo"
 	"github.com/gin-gonic/gin"
+	"golang.org/x/crypto/bcrypt"
 	"gopkg.in/yaml.v3"
 	"io"
 	"io/ioutil"
 	"log"
 	"math"
 	"net/http"
+	"os"
 	"strings"
 	"time"
 )
@@ -25,17 +27,32 @@ type Person struct {
 }
 
 type Config struct {
-	ChannelID          string `yaml:"channelID"`
-	BotToken           string `yaml:"botToken"`
-	TerrariaServerPort string `yaml:"terrariaServerPort"`
-	TerrariaBinaryPath string `yaml:"terrariaBinaryPath"`
-	TerrariaWorldPath  string `yaml:"terrariaWorldPath"`
-	WebServerPort      string `yaml:"webServerPort"`
+	DiscordOptions struct {
+		UseDiscordBot bool `yaml:"useDiscordBot"`
+		ChannelID     string `yaml:"channelID"`
+		BotToken      string `yaml:"botToken"`
+	} `yaml:"discordOptions"`
+	TerrariaServerPort       string `yaml:"terrariaServerPort"`
+	WebServerPort            string `yaml:"webServerPort"`
+	TerrariaServerBinaryPath string `yaml:"terrariaServerBinaryPath"`
+	TerrariaWorldPath        string `yaml:"terrariaWorldPath"`
+	TLSOptions TLSOptions `yaml:"tlsOptions"`
+	ControlPanelPassHash string `yaml:"controlPanelPassHash"`
+}
+
+type TLSOptions struct {
+	UseTLS   bool `yaml:"useTLS"`
+	CertFile string `yaml:"certFilePath"`
+	KeyFile  string `yaml:"keyFilePath"`
 }
 
 func main() {
-	b, err := ioutil.ReadFile("config.yaml")
-	if err != nil {
+	b, err := ioutil.ReadFile("config.yml")
+	if err != nil && strings.Contains(err.Error(), "no such file or directory"){
+		password := askCtrlPanelPassword()
+		createConfigFile(password)
+		os.Exit(0)
+	} else if err != nil {
 		log.Fatal(err)
 	}
 
@@ -44,11 +61,11 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	discordChannelID = config.ChannelID
+	discordChannelID = config.DiscordOptions.ChannelID
 
 	terrariaPty, err := NewTerrariaPty(TerrariaPtyArgs{
 		TerrariaServerPort: config.TerrariaServerPort,
-		TerrariaBinaryPath: config.TerrariaBinaryPath,
+		TerrariaBinaryPath: config.TerrariaServerBinaryPath,
 		TerrariaWorldPath:  config.TerrariaWorldPath,
 	})
 	if err != nil {
@@ -56,17 +73,27 @@ func main() {
 	}
 	go startDiscordConsoleRelay(terrariaPty.tty)
 
-	discordSession, err = discordgo.New("Bot " + config.BotToken)
+	discordSession, err = discordgo.New("Bot " + config.DiscordOptions.BotToken)
 	if err != nil {
 		log.Fatal("failed getting bot session", err)
 	}
 
 	gin.SetMode(gin.ReleaseMode)
-	go startWebServer(config.WebServerPort, terrariaPty)
+	go startWebServer(config.WebServerPort, terrariaPty, config.TLSOptions)
 
 	fmt.Println("Running")
 	shouldExit := make(chan bool)
 	<-shouldExit
+}
+
+func hashPassword(password string) (string, error) {
+	bytes, err := bcrypt.GenerateFromPassword([]byte(password), 14)
+	return string(bytes), err
+}
+
+func checkPasswordHash(password, hash string) bool {
+	err := bcrypt.CompareHashAndPassword([]byte(hash), []byte(password))
+	return err == nil
 }
 
 func startDiscordConsoleRelay(tty io.Reader) {
@@ -145,13 +172,18 @@ func notifyServerChannel(msg string) {
 	}
 }
 
-func startWebServer(webServerPort string, terrariaPty *TerrariaPty) {
+func startWebServer(webServerPort string, terrariaPty *TerrariaPty, tlsOptions TLSOptions ) {
 	r := gin.Default()
 	r.POST("/cmd", func(c *gin.Context) {
 		handlerCmd(c, terrariaPty)
 	})
 	r.StaticFS("/", http.Dir("./static"))
-	r.Run(":" + webServerPort)
+	if tlsOptions.UseTLS {
+		r.RunTLS(":" + webServerPort, tlsOptions.CertFile, tlsOptions.KeyFile)
+	} else {
+		r.Run(":" + webServerPort)
+	}
+
 }
 
 func humanizedDuration(duration time.Duration) string {
