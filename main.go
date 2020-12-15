@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"github.com/bwmarrin/discordgo"
 	"github.com/gin-gonic/gin"
-	"golang.org/x/crypto/bcrypt"
 	"gopkg.in/yaml.v3"
 	"io"
 	"io/ioutil"
@@ -24,27 +23,6 @@ var discordChannelID string
 type Person struct {
 	Name     string    `json:"name"`
 	JoinTime time.Time `json:"joinTime"`
-}
-
-type Config struct {
-	DiscordOptions struct {
-		UseDiscordBot bool `yaml:"useDiscordBot"`
-		ChannelID     string `yaml:"channelID"`
-		BotToken      string `yaml:"botToken"`
-	} `yaml:"discordOptions"`
-	ControlPanelHeader 		string `yaml:"controlPanelHeader"`
-	TerrariaServerPort       string `yaml:"terrariaServerPort"`
-	WebServerPort            string `yaml:"webServerPort"`
-	TerrariaServerBinaryPath string `yaml:"terrariaServerBinaryPath"`
-	TerrariaWorldPath        string `yaml:"terrariaWorldPath"`
-	TLSOptions TLSOptions `yaml:"tlsOptions"`
-	ControlPanelPassHash string `yaml:"controlPanelPassHash"`
-}
-
-type TLSOptions struct {
-	UseTLS   bool `yaml:"useTLS"`
-	CertFile string `yaml:"certFilePath"`
-	KeyFile  string `yaml:"keyFilePath"`
 }
 
 func main() {
@@ -87,16 +65,6 @@ func main() {
 	<-shouldExit
 }
 
-func hashPassword(password string) (string, error) {
-	bytes, err := bcrypt.GenerateFromPassword([]byte(password), 14)
-	return string(bytes), err
-}
-
-func checkPasswordHash(password, hash string) bool {
-	err := bcrypt.CompareHashAndPassword([]byte(hash), []byte(password))
-	return err == nil
-}
-
 func startDiscordConsoleRelay(tty io.Reader) {
 	scanner := bufio.NewScanner(tty)
 	relayConsoleText(scanner)
@@ -104,7 +72,7 @@ func startDiscordConsoleRelay(tty io.Reader) {
 
 func relayConsoleText(scanner *bufio.Scanner) {
 	lastIP := "NA"
-	for scanner.Scan() { // breaks when hard resetting
+	for scanner.Scan() { // breaks out when hard resetting
 		text := scanner.Text()
 		if strings.Contains(text, "is connecting") {
 			lastIP = text[:strings.Index(text, " is connecting")]

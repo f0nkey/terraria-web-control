@@ -3,6 +3,7 @@ package main
 import (
 	"bufio"
 	"fmt"
+	"golang.org/x/crypto/bcrypt"
 	"gopkg.in/yaml.v3"
 	"io/ioutil"
 	"log"
@@ -51,4 +52,35 @@ func defaultConfig(panelPasswordHash string) Config {
 		TLSOptions: TLSOptions{UseTLS: false, CertFile: "", KeyFile: ""},
 		ControlPanelPassHash: panelPasswordHash,
 	}
+}
+
+type Config struct {
+	DiscordOptions struct {
+		UseDiscordBot bool `yaml:"useDiscordBot"`
+		ChannelID     string `yaml:"channelID"`
+		BotToken      string `yaml:"botToken"`
+	} `yaml:"discordOptions"`
+	ControlPanelHeader 		string `yaml:"controlPanelHeader"`
+	TerrariaServerPort       string `yaml:"terrariaServerPort"`
+	WebServerPort            string `yaml:"webServerPort"`
+	TerrariaServerBinaryPath string `yaml:"terrariaServerBinaryPath"`
+	TerrariaWorldPath        string `yaml:"terrariaWorldPath"`
+	TLSOptions TLSOptions `yaml:"tlsOptions"`
+	ControlPanelPassHash string `yaml:"controlPanelPassHash"`
+}
+
+type TLSOptions struct {
+	UseTLS   bool `yaml:"useTLS"`
+	CertFile string `yaml:"certFilePath"`
+	KeyFile  string `yaml:"keyFilePath"`
+}
+
+func hashPassword(password string) (string, error) {
+	bytes, err := bcrypt.GenerateFromPassword([]byte(password), 14)
+	return string(bytes), err
+}
+
+func checkPasswordHash(password, hash string) bool {
+	err := bcrypt.CompareHashAndPassword([]byte(hash), []byte(password))
+	return err == nil
 }
