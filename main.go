@@ -32,6 +32,7 @@ type Config struct {
 		ChannelID     string `yaml:"channelID"`
 		BotToken      string `yaml:"botToken"`
 	} `yaml:"discordOptions"`
+	ControlPanelHeader 		string `yaml:"controlPanelHeader"`
 	TerrariaServerPort       string `yaml:"terrariaServerPort"`
 	WebServerPort            string `yaml:"webServerPort"`
 	TerrariaServerBinaryPath string `yaml:"terrariaServerBinaryPath"`

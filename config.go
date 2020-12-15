@@ -43,6 +43,7 @@ func defaultConfig(panelPasswordHash string) Config {
 			ChannelID     string `yaml:"channelID"`
 			BotToken      string `yaml:"botToken"`
 		}{UseDiscordBot: false, ChannelID: "xxx", BotToken: "xxx"},
+		ControlPanelHeader: "Terraria Control Panel",
 		TerrariaServerPort:       "7777",
 		TerrariaServerBinaryPath: "./server/TerrariaServer.bin.x86_64",
 		TerrariaWorldPath:        "./server/Texas.wld",
