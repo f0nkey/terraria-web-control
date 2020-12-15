@@ -15,4 +15,3 @@ Provides some additional Discord bot integration.
 - Add web console
 - Display current players in discord channel topic
 - Password protection
-- Config auto-generation
