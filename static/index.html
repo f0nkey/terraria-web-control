@@ -20,17 +20,20 @@
         <button id="midnight"><span>Midnight</span></button>
         <button id="save-world"><span>Save</span></button>
         <button id="hard-reset"><span>Hard Reset</span></button>
-        <button id="consoleButton"><span>Console</span></button>
+        <button id="console-button"><span>Console</span></button>
       </div>
       <div><p id="command-status"></p></div>
-      <div id="consoleModal" class="modal">
+      <div id="console-modal" class="modal">
         <div class="modal-content">
-          <span class="close">&times;</span>
+          <span id="close">&times;</span>
           <p class="consoleTitle">Console</p>
           <div class="fields">
             <div id="console"></div>
-            <input id="commandLine" type="text" placeholder="Type command(s) here" />
-            <button id="submit" onclick="displayInput()">Submit</button>
+            <input id="command-line" type="text" placeholder="Type command here" />
+            <div class="flex-parent jc-center">
+              <button id="submit" onclick="displayInput()">Submit</button>
+              <button id="clear-console" onclick="clearConsole()">Clear</button>
+            </div>
           </div>
         </div>
       </div>
