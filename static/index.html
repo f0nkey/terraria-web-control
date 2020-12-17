@@ -87,29 +87,39 @@
       submitCommand("save")
     })
 
-    var modal = document.getElementById("consoleModal");
-    var btn = document.getElementById("consoleButton");
-    var span = document.getElementsByClassName("close")[0];
+    document.getElementById("console-button").addEventListener("click", () => {
+      document.getElementById("console-modal").style.display = "block"
+      document.getElementById("command-line").focus();
+    })
 
-    btn.onclick = function() {
-      modal.style.display = "block";
-    }
+    // document.getElementById("console-modal").addEventListener("click", () => {
+    //   document.getElementById("console-modal").style.display = "none"
+    // })
 
-    span.onclick = function() {
-      modal.style.display = "none";
-    }
+    document.getElementById("close").addEventListener("click", () => {
+      let modal = document.getElementById("console-modal")
+      modal.style.display = "none"
+    })
 
-    window.onclick = function(event) {
-      if (event.target == modal) {
-        modal.style.display = "none";
+    document.getElementById("command-line").addEventListener("keyup", function(event) {
+      if (event.keyCode === 13) { // enter == 13
+        event.preventDefault()
+        displayInput()
       }
-    }
+    })
 
     function displayInput() {
-      var inputText = document.getElementById("commandLine").value;
+      let inputText = document.getElementById("command-line").value;
       document.getElementById("console").innerHTML += (inputText + "</br>");
+      let cons = document.getElementById("console")
+      cons.scrollTo(0, cons.scrollHeight)
+      document.getElementById("command-line").value = "";
+      document.getElementById("command-line").focus();
     }
 
+    function clearConsole() {
+        document.getElementById("console").innerHTML = null;
+    }
     </script>
 
 </html>
