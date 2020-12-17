@@ -11,6 +11,7 @@ import (
 	"log"
 	"math"
 	"net/http"
+	"os"
 	"strings"
 	"time"
 )
@@ -24,18 +25,13 @@ type Person struct {
 	JoinTime time.Time `json:"joinTime"`
 }
 
-type Config struct {
-	ChannelID          string `yaml:"channelID"`
-	BotToken           string `yaml:"botToken"`
-	TerrariaServerPort string `yaml:"terrariaServerPort"`
-	TerrariaBinaryPath string `yaml:"terrariaBinaryPath"`
-	TerrariaWorldPath  string `yaml:"terrariaWorldPath"`
-	WebServerPort      string `yaml:"webServerPort"`
-}
-
 func main() {
-	b, err := ioutil.ReadFile("config.yaml")
-	if err != nil {
+	b, err := ioutil.ReadFile("config.yml")
+	if err != nil && strings.Contains(err.Error(), "no such file or directory"){
+		password := askCtrlPanelPassword()
+		createConfigFile(password)
+		os.Exit(0)
+	} else if err != nil {
 		log.Fatal(err)
 	}
 
@@ -44,11 +40,11 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	discordChannelID = config.ChannelID
+	discordChannelID = config.DiscordOptions.ChannelID
 
 	terrariaPty, err := NewTerrariaPty(TerrariaPtyArgs{
 		TerrariaServerPort: config.TerrariaServerPort,
-		TerrariaBinaryPath: config.TerrariaBinaryPath,
+		TerrariaBinaryPath: config.TerrariaServerBinaryPath,
 		TerrariaWorldPath:  config.TerrariaWorldPath,
 	})
 	if err != nil {
@@ -56,13 +52,13 @@ func main() {
 	}
 	go startDiscordConsoleRelay(terrariaPty.tty)
 
-	discordSession, err = discordgo.New("Bot " + config.BotToken)
+	discordSession, err = discordgo.New("Bot " + config.DiscordOptions.BotToken)
 	if err != nil {
 		log.Fatal("failed getting bot session", err)
 	}
 
 	gin.SetMode(gin.ReleaseMode)
-	go startWebServer(config.WebServerPort, terrariaPty)
+	go startWebServer(config.WebServerPort, terrariaPty, config.TLSOptions)
 
 	fmt.Println("Running")
 	shouldExit := make(chan bool)
@@ -76,7 +72,7 @@ func startDiscordConsoleRelay(tty io.Reader) {
 
 func relayConsoleText(scanner *bufio.Scanner) {
 	lastIP := "NA"
-	for scanner.Scan() { // breaks when hard resetting
+	for scanner.Scan() { // breaks out when hard resetting
 		text := scanner.Text()
 		if strings.Contains(text, "is connecting") {
 			lastIP = text[:strings.Index(text, " is connecting")]
@@ -145,13 +141,18 @@ func notifyServerChannel(msg string) {
 	}
 }
 
-func startWebServer(webServerPort string, terrariaPty *TerrariaPty) {
+func startWebServer(webServerPort string, terrariaPty *TerrariaPty, tlsOptions TLSOptions ) {
 	r := gin.Default()
 	r.POST("/cmd", func(c *gin.Context) {
 		handlerCmd(c, terrariaPty)
 	})
 	r.StaticFS("/", http.Dir("./static"))
-	r.Run(":" + webServerPort)
+	if tlsOptions.UseTLS {
+		r.RunTLS(":" + webServerPort, tlsOptions.CertFile, tlsOptions.KeyFile)
+	} else {
+		r.Run(":" + webServerPort)
+	}
+
 }
 
 func humanizedDuration(duration time.Duration) string {
