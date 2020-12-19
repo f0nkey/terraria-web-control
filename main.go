@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/bwmarrin/discordgo"
 	"github.com/gin-gonic/gin"
+	"github.com/gorilla/websocket"
 	"gopkg.in/yaml.v3"
 	"io"
 	"io/ioutil"
@@ -104,10 +105,6 @@ func relayConsoleText(scanner *bufio.Scanner) {
 func handlerCmd(c *gin.Context, terrariaPty *TerrariaPty) {
 	body, _ := ioutil.ReadAll(c.Request.Body)
 	bStr := string(body)
-	if bStr != "dusk" && bStr != "dawn" && bStr != "noon" && bStr != "midnight" && bStr != "hardReset" && bStr != "save" {
-		c.JSON(400, gin.H{"msg": "error", "error": "command not allowed"})
-		return
-	}
 
 	if bStr == "hardReset" {
 		err := terrariaPty.HardReboot()
@@ -132,6 +129,32 @@ func handlerCmd(c *gin.Context, terrariaPty *TerrariaPty) {
 		notifyServerChannel("Someone not playing in the server issued command: " + bStr)
 	}
 	c.JSON(200, gin.H{"msg": "passed"})
+}
+
+var upgrader = websocket.Upgrader{
+	ReadBufferSize:  1024,
+	WriteBufferSize: 1024,
+}
+
+// todo: register this handler and implement consoleOutput
+func handlerConsoleOutput(c *gin.Context, consoleOutput chan string) {
+	conn, err := upgrader.Upgrade(c.Writer, c.Request, nil)
+	if err != nil {
+		fmt.Println("Failed to set websocket upgrade: %+v", err)
+		return
+	}
+	for {
+		consoleText, ok := <- consoleOutput
+		if !ok {
+			conn.Close()
+			break
+		}
+		err := conn.WriteMessage(websocket.TextMessage, []byte(consoleText))
+		if err != nil {
+			log.Println("err writing message to client", err)
+			break
+		}
+	}
 }
 
 func notifyServerChannel(msg string) {
