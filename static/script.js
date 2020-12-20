@@ -11,7 +11,7 @@ function script() {
         el.classList.add("anim")
     }
 
-    function submitCommand(cmd) {
+    function submitCommand(cmd, callback) {
         let url = window.location.href + "cmd"
         fetch(url, {method: "POST", body: cmd})
             .then(response => response.json())
@@ -21,8 +21,10 @@ function script() {
                     return
                 }
                 setCmdStatus("Processed command successfully.")
+                if(callback !== null && callback !== undefined) callback("success")
             }).catch((e) => {
             setCmdStatus("Encountered error: " + e)
+            if(callback !== null && callback !== undefined) callback("fail")
         });
     }
 
@@ -43,8 +45,7 @@ function script() {
 
     function printToConsole(text) {
         document.getElementById("console").innerHTML += (text + "</br>");
-        let cons = document.getElementById("console")
-        cons.scrollTo(0, cons.scrollHeight)
+        document.getElementById("console").scrollTo(0, cons.scrollHeight)
     }
 
     function clearConsole() {
@@ -66,7 +67,16 @@ function script() {
     document.getElementById("hard-reset").addEventListener("click", () => {
         if (confirm("This will reboot the server WITHOUT SAVING. Are you sure?")) {
             setCmdStatus("Issuing hard reset ...")
-            submitCommand("hardReset")
+            submitCommand("hardReset", (status) => {
+                if(status === "success") {
+                    setCmdStatus("Successful. Refreshing page in 3 seconds.")
+                    setTimeout(() =>{
+                        window.location.reload()
+                    }, 3000)
+                } else {
+                    setCmdStatus("Failed to send hard reset command.")
+                }
+            })
         }
     })
     document.getElementById("save-world").addEventListener("click", () => {
@@ -76,6 +86,7 @@ function script() {
     document.getElementById("console-button").addEventListener("click", () => {
         document.getElementById("console-modal").style.display = "block"
         document.getElementById("command-line").focus();
+        document.getElementById("console").scrollTo(0, cons.scrollHeight)
     })
 
     document.getElementById("close").addEventListener("click", () => {
@@ -101,6 +112,10 @@ function script() {
     let sock = new WebSocket("ws://" + window.location.href.substr(7) + "console");
     sock.onmessage = (ev) => {
         printToConsole(ev.data)
+    }
+
+    sock.onclose = (ev) => {
+        printToConsole("Server console communication socket closed.")
     }
 
     console.log("Loaded")
