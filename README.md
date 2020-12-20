@@ -12,6 +12,5 @@ Provides some additional Discord bot integration.
   - Relay player joins and leaves to a channel.
 
 ## Todo
-- Add web console
 - Display current players in discord channel topic
 - Password protection
