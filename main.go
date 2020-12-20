@@ -83,12 +83,12 @@ func handlerCmd(c *gin.Context, terrariaPty *TerrariaPty) {
 		return
 	}
 
-	//ip := strings.Split(c.ClientIP(), ":")[0]
-	//if p, exists := ipPersons[ip]; exists {
-	//	//notifyServerChannel(p.Name + " issued command: " + bStr) // todo: fix
-	//} else {
-	//	//notifyServerChannel("Someone not playing in the server issued command: " + bStr) // todo: fix
-	//}
+	ip := strings.Split(c.ClientIP(), ":")[0]
+	if p, exists := ipPersons[ip]; exists {
+		speakDiscord(p.Name + " issued command: " + bStr)
+	} else {
+		speakDiscord("Someone not playing in the server issued command: " + bStr)
+	}
 	c.JSON(200, gin.H{"msg": "passed"})
 }
 

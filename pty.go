@@ -54,6 +54,13 @@ func (tp TerrariaPty) WriteConsole(s string) error {
 	return nil
 }
 
+// WriteConsole writes a string to the Terraria console. Should be a command.
+func (tp TerrariaPty) WriteDiscordChannel(s string) error {
+	speakDiscord(s)
+	return nil
+}
+
+
 // HardReboot reboots the server without saving.
 func (tp *TerrariaPty) HardReboot() error {
 	err := tp.cmd.Process.Signal(syscall.SIGINT)
