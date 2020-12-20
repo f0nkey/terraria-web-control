@@ -153,15 +153,20 @@ button:hover span {
   transition: all 200ms;
 }
 
-#consoleButton span {
+#console-button span {
   background-color: darkblue;
 }
 
-#consoleButton:hover span {
+#console-button:hover span {
   color: darkblue;
   text-shadow: none;
   filter: drop-shadow(0px 0px 20px darkblue) drop-shadow(0px 0px 5px darkblue);
   transition: all 200ms;
+}
+
+#close {
+  cursor: pointer;
+  font-size: 24px;
 }
 
 #command-status {
@@ -170,33 +175,58 @@ button:hover span {
 }
 
 #submit {
-  margin: 10px auto;
-  width: 100px;
-  height: auto;
   font-size: 15px;
+  color: darkblue;
+  height: auto;
+  width: 100px;
+  margin-right: 20px;
+}
+
+#clear-console{
+  font-size: 15px;
+  color: darkred;
+  height: auto;
+  width: 100px;
 }
 
 #console {
   width: 100%;
-  border: none;
   height: 300px;
-  padding-left: 5px;
+  border: none;
+  padding: 15px 0px 0px 15px;
   font-size: 12px;
   position: relative;
   overflow: auto;
   margin-bottom: 5px;
-  border-radius: 25px;
-  box-shadow: inset 8px 8px 8px #cbced1, inset -8px -8px 8px #ffffff;
+  border-radius: 10px;
+  box-shadow: inset 3px 3px 8px 2px #cbced1, inset -3px -3px 8px 2px #ffffff;
 }
 
-#commandLine {
+#command-line {
   width: 100%;
-  border: 3px solid darkblue;
+  border: none;
   height: 30px;
-  padding-left: 5px;
+  padding-left: 10px;
   font-size: 12px;
   position: relative;
+  margin-bottom: 5px;
+  border-radius: 10px;
+  box-shadow: inset 2px 2px 5px 2px #cbced1, inset -2px -2px 5px 2px #ffffff;
 }
+
+#command-line:focus{
+  outline: none;
+}
+
+.flex-parent {
+  display: flex;
+  margin-top: 5px;
+}
+
+.jc-center {
+  justify-content: center;
+}
+
 @keyframes fade {
   from {
     opacity: 0
