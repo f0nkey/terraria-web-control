@@ -5,6 +5,7 @@
     <title>Dino Doggos - Terraria Control Panel</title>
     <link rel="stylesheet" type="text/css" href="style.css"/>
     <link href="https://fonts.googleapis.com/css?family=Lato:400,700&display=swap" rel="stylesheet">
+    <script src="script.js"></script>
     <meta name="viewport" content="width=device-width, initial-scale=1">
   </head>
 
@@ -26,100 +27,17 @@
       <div id="console-modal" class="modal">
         <div class="modal-content">
           <span id="close">&times;</span>
-          <p class="consoleTitle">Console</p>
+          <p id="console-title">Console</p>
           <div class="fields">
             <div id="console"></div>
-            <input id="command-line" type="text" placeholder="Type command here" />
+            <input id="command-line" type="text" placeholder="Type command here"/>
             <div class="flex-parent jc-center">
-              <button id="submit" onclick="displayInput()">Submit</button>
-              <button id="clear-console" onclick="clearConsole()">Clear</button>
+              <button id="submit">Submit</button>
+              <button id="clear-console">Clear</button>
             </div>
           </div>
         </div>
       </div>
     </div>
   </body>
-
-    <script>
-      function submitCommand(cmd) {
-        let url = window.location.href + "cmd"
-        fetch(url, {method: "POST", body:cmd})
-            .then(response => response.json())
-            .then((data) => {
-                if(data.msg === "error") {
-                    setCmdStatus("Encountered error: " + data.error)
-                    return
-                }
-                setCmdStatus("Processed command successfully.")
-            }).catch((e) => {
-            setCmdStatus("Encountered error: " + e)
-        });
-    }
-
-    function setCmdStatus(text) {
-        let el = document.getElementById("command-status")
-        el.innerText = text
-        el.classList.remove("anim")
-        void el.offsetWidth
-        el.classList.add("anim")
-    }
-
-    document.getElementById("dusk").addEventListener("click", ()=> {
-        submitCommand("dusk")
-    })
-    document.getElementById("dawn").addEventListener("click", ()=> {
-        submitCommand("dawn")
-    })
-    document.getElementById("noon").addEventListener("click", ()=> {
-        submitCommand("noon")
-    })
-    document.getElementById("midnight").addEventListener("click", ()=> {
-        submitCommand("midnight")
-    })
-    document.getElementById("hard-reset").addEventListener("click", ()=> {
-      if(confirm("This will reboot the server WITHOUT SAVING. Are you sure?"))
-      {
-        setCmdStatus("Issuing hard reset ...")
-        submitCommand("hardReset")
-      }
-    })
-    document.getElementById("save-world").addEventListener("click", ()=> {
-      submitCommand("save")
-    })
-
-    document.getElementById("console-button").addEventListener("click", () => {
-      document.getElementById("console-modal").style.display = "block"
-      document.getElementById("command-line").focus();
-    })
-
-    // document.getElementById("console-modal").addEventListener("click", () => {
-    //   document.getElementById("console-modal").style.display = "none"
-    // })
-
-    document.getElementById("close").addEventListener("click", () => {
-      let modal = document.getElementById("console-modal")
-      modal.style.display = "none"
-    })
-
-    document.getElementById("command-line").addEventListener("keyup", function(event) {
-      if (event.keyCode === 13) { // enter == 13
-        event.preventDefault()
-        displayInput()
-      }
-    })
-
-    function displayInput() {
-      let inputText = document.getElementById("command-line").value;
-      document.getElementById("console").innerHTML += (inputText + "</br>");
-      let cons = document.getElementById("console")
-      cons.scrollTo(0, cons.scrollHeight)
-      document.getElementById("command-line").value = "";
-      document.getElementById("command-line").focus();
-    }
-
-    function clearConsole() {
-        document.getElementById("console").innerHTML = null;
-    }
-    </script>
-
 </html>
