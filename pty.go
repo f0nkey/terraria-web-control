@@ -60,7 +60,6 @@ func (tp TerrariaPty) WriteDiscordChannel(s string) error {
 	return nil
 }
 
-
 // HardReboot reboots the server without saving.
 func (tp *TerrariaPty) HardReboot() error {
 	err := tp.cmd.Process.Signal(syscall.SIGINT)
@@ -102,9 +101,15 @@ func createCmdTtyCh(args TerrariaPtyArgs) (*exec.Cmd, *os.File, chan string, err
 
 func relayConsoleOutput(tty io.Reader, output chan string) {
 	scanner := bufio.NewScanner(tty)
+	dber := NewDebouncer(time.Millisecond * 500)
+	fullMsg := ""
 	for scanner.Scan() { // breaks out when hard resetting
 		text := scanner.Text()
-		output <- text
+		fullMsg = fullMsg +"\n" + text
+		dber(func(){
+			output <- fullMsg
+			fullMsg = ""
+		})
 	}
 }
 

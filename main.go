@@ -48,7 +48,6 @@ func main() {
 	if err != nil {
 		log.Fatal("failed starting terraria pty", err)
 	}
-	//go startDiscordConsoleRelay(terrariaPty.tty)
 
 	discordSession, err = discordgo.New("Bot " + config.DiscordOptions.BotToken)
 	if err != nil {
@@ -97,7 +96,6 @@ var upgrader = websocket.Upgrader{
 	WriteBufferSize: 1024,
 }
 
-// todo: register this handler and implement consoleOutput
 func handlerConsoleOutput(c *gin.Context, consoleOutput chan string) {
 	conn, err := upgrader.Upgrade(c.Writer, c.Request, nil)
 	if err != nil {
