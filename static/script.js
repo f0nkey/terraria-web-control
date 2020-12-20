@@ -45,7 +45,8 @@ function script() {
 
     function printToConsole(text) {
         document.getElementById("console").innerHTML += (text + "</br>");
-        document.getElementById("console").scrollTo(0, cons.scrollHeight)
+        let cons = document.getElementById("console")
+        cons.scrollTo(0, cons.scrollHeight)
     }
 
     function clearConsole() {
@@ -86,7 +87,8 @@ function script() {
     document.getElementById("console-button").addEventListener("click", () => {
         document.getElementById("console-modal").style.display = "block"
         document.getElementById("command-line").focus();
-        document.getElementById("console").scrollTo(0, cons.scrollHeight)
+        let cons = document.getElementById("console")
+        cons.scrollTo(0, cons.scrollHeight)
     })
 
     document.getElementById("close").addEventListener("click", () => {
