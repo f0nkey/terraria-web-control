@@ -12,6 +12,8 @@ Provides some additional Discord bot integration.
   - Dusk, Dawn, Midnight, Noon
   - Save World
   - Hard Reboot
+- Web Console
+  - Acts as if you were typing in the terminal/command line.
 - Discord Integration
   - Relay player joins and leaves to a channel.
 
