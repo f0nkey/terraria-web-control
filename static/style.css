@@ -8,7 +8,7 @@ body {
   width: 100vw;
   overflow: hidden;
   font-family: 'Lato', sans-serif;
-  font-weight: 700;
+  font-weight: 500;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -20,7 +20,7 @@ body {
   width: 430px;
   padding: 40px 35px 35px 35px;
   border-radius: 40px;
-  background: #ecf0f3;
+  background: #ecf0f4;
   box-shadow: 13px 13px 20px #cbced1, -13px -13px 20px #ffffff;
 }
 
@@ -35,6 +35,7 @@ body {
 }
 
 .title {
+  font-weight: 700;
   text-align: center;
   font-size: 28px;
   padding-top: 20px;
@@ -51,6 +52,52 @@ body {
 .buttons {
   width: 100%;
   padding: 30px 5px 5px 5px;
+}
+
+.modal {
+  display: none;
+  position: fixed;
+  z-index: 1;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  background-color: rgb(0,0,0);
+  background-color: rgba(0,0,0,0.4);
+}
+
+.modal-content {
+  position: relative;
+  background-color: #fefefe;
+  margin: 15% auto;
+  padding: 20px;
+  border: 1px solid #888;
+  width: 80%;
+}
+
+.close {
+  color: #aaa;
+  float: right;
+  font-size: 28px;
+  font-weight: bold;
+
+}
+
+.close:hover,
+.close:focus {
+  color: black;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.fields {
+  text-align: left;
+}
+
+#console-title {
+  text-align: center;
+  font-weight: 700;
 }
 
 button {
@@ -88,11 +135,11 @@ button:hover span {
   transition: all 200ms;
 }
 
-#hard-reset span{
+#hard-reset span {
   background-color: darkred;
 }
 
-#hard-reset:hover span{
+#hard-reset:hover span {
   color: darkred;
   text-shadow: none;
   filter: drop-shadow(0px 0px 20px darkred) drop-shadow(0px 0px 5px darkred);
@@ -103,16 +150,87 @@ button:hover span {
   background-color: darkgreen;
 }
 
-#save-world:hover span{
+#save-world:hover span {
   color: darkgreen;
   text-shadow: none;
   filter: drop-shadow(0px 0px 20px darkgreen) drop-shadow(0px 0px 5px darkgreen);
   transition: all 200ms;
 }
 
+#console-button span {
+  background-color: darkblue;
+}
+
+#console-button:hover span {
+  color: darkblue;
+  text-shadow: none;
+  filter: drop-shadow(0px 0px 20px darkblue) drop-shadow(0px 0px 5px darkblue);
+  transition: all 200ms;
+}
+
+#close {
+  cursor: pointer;
+  font-size: 24px;
+}
+
 #command-status {
   margin: 0 auto;
   text-align: center;
+}
+
+#submit {
+  font-size: 15px;
+  color: darkblue;
+  height: auto;
+  width: 100px;
+  margin-right: 20px;
+}
+
+#clear-console{
+  font-size: 15px;
+  color: darkred;
+  height: auto;
+  width: 100px;
+}
+
+#console {
+  font-family: monospace;
+  width: 100%;
+  height: 300px;
+  border: none;
+  padding: 15px 0 15px 15px;
+  font-size: 12px;
+  position: relative;
+  overflow: auto;
+  margin-bottom: 5px;
+  border-radius: 10px;
+  box-shadow: inset 3px 3px 8px 2px #cbced1, inset -3px -3px 8px 2px #ffffff;
+}
+
+#command-line {
+  font-family: monospace;
+  width: 100%;
+  border: none;
+  height: 30px;
+  padding-left: 10px;
+  font-size: 12px;
+  position: relative;
+  margin-bottom: 5px;
+  border-radius: 10px;
+  box-shadow: inset 2px 2px 5px 2px #cbced1, inset -2px -2px 5px 2px #ffffff;
+}
+
+#command-line:focus{
+  outline: none;
+}
+
+.flex-parent {
+  display: flex;
+  margin-top: 5px;
+}
+
+.jc-center {
+  justify-content: center;
 }
 
 @keyframes fade {

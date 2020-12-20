@@ -1,16 +1,14 @@
 package main
 
 import (
-	"bufio"
 	"fmt"
 	"github.com/bwmarrin/discordgo"
 	"github.com/gin-gonic/gin"
+	"github.com/gorilla/websocket"
 	"gopkg.in/yaml.v3"
-	"io"
 	"io/ioutil"
 	"log"
 	"math"
-	"net/http"
 	"os"
 	"strings"
 	"time"
@@ -50,7 +48,6 @@ func main() {
 	if err != nil {
 		log.Fatal("failed starting terraria pty", err)
 	}
-	go startDiscordConsoleRelay(terrariaPty.tty)
 
 	discordSession, err = discordgo.New("Bot " + config.DiscordOptions.BotToken)
 	if err != nil {
@@ -65,49 +62,9 @@ func main() {
 	<-shouldExit
 }
 
-func startDiscordConsoleRelay(tty io.Reader) {
-	scanner := bufio.NewScanner(tty)
-	relayConsoleText(scanner)
-}
-
-func relayConsoleText(scanner *bufio.Scanner) {
-	lastIP := "NA"
-	for scanner.Scan() { // breaks out when hard resetting
-		text := scanner.Text()
-		if strings.Contains(text, "is connecting") {
-			lastIP = text[:strings.Index(text, " is connecting")]
-			lastIP = strings.Split(lastIP, ":")[0]
-		}
-		if strings.Contains(text, " has joined.") {
-			personName := text[:strings.Index(text, " has joined.")]
-			notifyServerChannel(personName + " has joined!")
-			ipPersons[lastIP] = Person{
-				Name:     personName,
-				JoinTime: time.Now(),
-			}
-		}
-		if strings.Contains(text, " has left.") {
-			personName := text[:strings.Index(text, " has left.")]
-			person := Person{}
-			for key, p := range ipPersons {
-				if p.Name == personName {
-					person = p
-					delete(ipPersons, key)
-				}
-			}
-			notifyServerChannel(personName + " has left. They played for " + humanizedDuration(time.Since(person.JoinTime)))
-		}
-		log.Println(text)
-	}
-}
-
 func handlerCmd(c *gin.Context, terrariaPty *TerrariaPty) {
 	body, _ := ioutil.ReadAll(c.Request.Body)
 	bStr := string(body)
-	if bStr != "dusk" && bStr != "dawn" && bStr != "noon" && bStr != "midnight" && bStr != "hardReset" && bStr != "save" {
-		c.JSON(400, gin.H{"msg": "error", "error": "command not allowed"})
-		return
-	}
 
 	if bStr == "hardReset" {
 		err := terrariaPty.HardReboot()
@@ -127,17 +84,35 @@ func handlerCmd(c *gin.Context, terrariaPty *TerrariaPty) {
 
 	ip := strings.Split(c.ClientIP(), ":")[0]
 	if p, exists := ipPersons[ip]; exists {
-		notifyServerChannel(p.Name + " issued command: " + bStr)
+		speakDiscord(p.Name + " issued command: " + bStr)
 	} else {
-		notifyServerChannel("Someone not playing in the server issued command: " + bStr)
+		speakDiscord("Someone not playing in the server issued command: " + bStr)
 	}
 	c.JSON(200, gin.H{"msg": "passed"})
 }
 
-func notifyServerChannel(msg string) {
-	_, err := discordSession.ChannelMessageSend(discordChannelID, msg)
+var upgrader = websocket.Upgrader{
+	ReadBufferSize:  1024,
+	WriteBufferSize: 1024,
+}
+
+func handlerConsoleOutput(c *gin.Context, consoleOutput chan string) {
+	conn, err := upgrader.Upgrade(c.Writer, c.Request, nil)
 	if err != nil {
-		log.Println("err sending message to discord server", err)
+		fmt.Println("Failed to set websocket upgrade: %+v", err)
+		return
+	}
+	for {
+		consoleText, ok := <- consoleOutput
+		if !ok {
+			conn.Close()
+			break
+		}
+		err := conn.WriteMessage(websocket.TextMessage, []byte(consoleText))
+		if err != nil {
+			log.Println("err writing message to client", err)
+			break
+		}
 	}
 }
 
@@ -146,7 +121,12 @@ func startWebServer(webServerPort string, terrariaPty *TerrariaPty, tlsOptions T
 	r.POST("/cmd", func(c *gin.Context) {
 		handlerCmd(c, terrariaPty)
 	})
-	r.StaticFS("/", http.Dir("./static"))
+	r.GET("/console", func(c *gin.Context) {
+		handlerConsoleOutput(c, terrariaPty.consoleRelayChan)
+	})
+	r.StaticFile("/", "./static/index.html")
+	r.StaticFile("/style.css", "./static/style.css")
+	r.StaticFile("/script.js", "./static/script.js")
 	if tlsOptions.UseTLS {
 		r.RunTLS(":" + webServerPort, tlsOptions.CertFile, tlsOptions.KeyFile)
 	} else {
